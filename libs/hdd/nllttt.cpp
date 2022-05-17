@@ -1022,7 +1022,7 @@ Transform::Info Transform::parse(const std::vector<string> &tokens)
       throw Exception("Rotation must be in range -360,360");
     }
     map_setup_proxy(0, info.ref_ellip.c_str()); //would need to convert std::string to char* array to add options    
-    vazeqdist(0, double &lon0, double &lat0);
+
   }
   else if (info.type == "TRANS_MERC")
   {
@@ -1048,7 +1048,7 @@ Transform::Info Transform::parse(const std::vector<string> &tokens)
       throw Exception("Rotation must be in range -360,360");
     }
     map_setup_proxy(0, info.ref_ellip.c_str());
-    vtvm(0, double &lon0, double &lat0, 0); // false easting hardcoded to 0
+
   }
 
   else if (info.type == "LAMBERT")
@@ -1076,7 +1076,7 @@ Transform::Info Transform::parse(const std::vector<string> &tokens)
       throw Exception("Rotation must be in range -360,360");
     }
     map_setup_proxy(0, info.ref_ellip.c_str());
-    vlamb(0, info.orig_long, info.orig_lat, info.pha, info.phb);
+
   }
 
   else
