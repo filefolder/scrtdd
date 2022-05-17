@@ -1021,7 +1021,8 @@ Transform::Info Transform::parse(const std::vector<string> &tokens)
     {
       throw Exception("Rotation must be in range -360,360");
     }
-    //TODO vazeqdist(0, double &lon0, double &lat0);
+    map_setup_proxy(0, info.ref_ellip.c_str()); //would need to convert std::string to char* array to add options    
+    vazeqdist(0, double &lon0, double &lat0);
   }
   else if (info.type == "TRANS_MERC")
   {
@@ -1029,6 +1030,7 @@ Transform::Info Transform::parse(const std::vector<string> &tokens)
     info.orig_lat  = std::stod(tokens.at(5));
     info.orig_long = std::stod(tokens.at(7));
     info.rot       = std::stod(tokens.at(9));
+    // info.falseeast = std::stod(tokens.at(11)); /needs adding
     info.angle     = -degToRad(info.rot);
     info.cosang    = std::cos(info.angle);
     info.sinang    = std::sin(info.angle);
@@ -1045,7 +1047,8 @@ Transform::Info Transform::parse(const std::vector<string> &tokens)
     {
       throw Exception("Rotation must be in range -360,360");
     }
-    //TODO vtm(0, double &lon0, double &lat0);
+    map_setup_proxy(0, info.ref_ellip.c_str());
+    vtvm(0, double &lon0, double &lat0, 0); // false easting hardcoded to 0
   }
 
   else if (info.type == "LAMBERT")
@@ -1072,7 +1075,7 @@ Transform::Info Transform::parse(const std::vector<string> &tokens)
     {
       throw Exception("Rotation must be in range -360,360");
     }
-    map_setup_proxy(0, info.ref_ellip.c_str()); //would need to convert std::string to char* array to add options
+    map_setup_proxy(0, info.ref_ellip.c_str());
     vlamb(0, info.orig_long, info.orig_lat, info.pha, info.phb);
   }
 
@@ -1129,8 +1132,8 @@ void Transform::fromLatLon(double lat,
     double ytemp = lat - info.orig_lat;
 
     lamb(0, xtemp, ytemp, &xLoc, &yLoc);
-    xLoc /= 1000.;
-    yLoc /= 1000.;
+    xLoc /= 1000.0;
+    yLoc /= 1000.0;
     xLoc = xLoc * info.cosang - yLoc * info.sinang;
     yLoc = yLoc * info.cosang + xLoc * info.sinang;
     
@@ -1144,8 +1147,8 @@ void Transform::fromLatLon(double lat,
     double ytemp = lat - info.orig_lat;
 
     tvm(0, xtemp, ytemp, &xLoc, &yLoc);
-    xLoc /= 1000.;
-    yLoc /= 1000.;
+    xLoc /= 1000.0;
+    yLoc /= 1000.0;
     xLoc = xLoc * info.cosang - yLoc * info.sinang;
     yLoc = yLoc * info.cosang + xLoc * info.sinang;
   }
@@ -1158,8 +1161,8 @@ void Transform::fromLatLon(double lat,
     double ytemp = lat - info.orig_lat;
 
     azeqdist(0, xtemp, ytemp, &xLoc, &yLoc);
-    xLoc /= 1000.;
-    yLoc /= 1000.;
+    xLoc /= 1000.0;
+    yLoc /= 1000.0;
     xLoc = xLoc * info.cosang - yLoc * info.sinang;
     yLoc = yLoc * info.cosang + xLoc * info.sinang;
   }  
@@ -1224,7 +1227,7 @@ void Transform::toLatLon(double xLoc,
     double xtemp = xLoc * info.cosang + yLoc * info.sinang;
     double ytemp = yLoc * info.cosang - xLoc * info.sinang;
 
-    itvm(0, &lon, &lat, xtemp, ytemp); // hardwired n_proj with 0 (WGS84) for now
+    itvm(0, &lon, &lat, xtemp * 1000.0, ytemp * 1000.0); // hardwired n_proj with 0 (WGS84) for now
     lon          = info.orig_long + lon;
     lat          = info.orig_lat + lat;
     if (lon < -180.0)
@@ -1237,7 +1240,7 @@ void Transform::toLatLon(double xLoc,
     double xtemp = xLoc * info.cosang + yLoc * info.sinang;
     double ytemp = yLoc * info.cosang - xLoc * info.sinang;
 
-    iazeqdist(0, &lon, &lat, xtemp, ytemp); // hardwired n_proj with 0 (WGS84) for now
+    iazeqdist(0, &lon, &lat, xtemp * 1000.0, ytemp * 1000.0); // hardwired n_proj with 0 (WGS84) for now
     lon          = info.orig_long + lon;
     lat          = info.orig_lat + lat;
     if (lon < -180.0)
